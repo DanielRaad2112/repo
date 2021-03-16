@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>PARCIAL</title>
+    <title>Ejercicio</title>
     
   
     
@@ -30,6 +30,7 @@
 		var endKey = false;
 		var object, transf = 'T';
     var r_key = false;
+    var angulo =  5 * Math.PI/180;
 		init();
 		animate();
 	
@@ -175,29 +176,36 @@
 		if(transf == 'E') {
 			tx=1; ty=1; tz=1;
 		}
+    r_key = false;
 		if(upArrow) {
-			ty = (transf == 'T' ? 1 : transf == 'E' ? 1.1 : transf == 'R' ? 1 : 0);
+			ty = (transf == 'T' ? 1 : transf == 'E' ? 1.1 : transf == 'R' ? angulo : 0);
 		}
 		if(downArrow) {
-			ty = (transf == 'T' ? -1 : transf == 'E' ? 10/11 : transf == 'R' ? 1 : 0);
+			ty = (transf == 'T' ? -1 : transf == 'E' ? 10/11 : transf == 'R' ? -angulo : 0);
 		}
 		if(leftArrow) {
-			tx= (transf == 'T' ? -1 : transf == 'E' ? 10/11: transf == 'R' ? 1 : 0);
+			tx= (transf == 'T' ? -1 : transf == 'E' ? 10/11: transf == 'R' ? -angulo : 0);
 		}
 		if(rightArrow) {
-			tx= (transf == 'T' ? 1 : transf == 'E' ? 1.1: transf == 'R' ? 1 : 0);
+			tx= (transf == 'T' ? 1 : transf == 'E' ? 1.1: transf == 'R' ? angulo : 0);
 		}
 		if(homeKey) {
-			tz= (transf == 'T' ? 1 : transf == 'E' ? 1.1: transf == 'R' ? 1 : 0);
+			tz= (transf == 'T' ? 1 : transf == 'E' ? 1.1: transf == 'R' ? angulo : 0);
 		}
 		if(endKey) {
-			tz= (transf == 'T' ? -1 : transf == 'E' ? 10/11: transf == 'R' ? 1 : 0); 
+			tz= (transf == 'T' ? -1 : transf == 'E' ? 10/11: transf == 'R' ? -angulo : 0); 
 		}
 		if(clearKey) {
 			tx=-object.position.x;
 			ty=-object.position.y;
 			tz=-object.position.z;
 		}
+     
+      
+      var cos_x = Math.cos(ty), sen_x = Math.sin(ty);
+      var cos_y = Math.cos(tx), sen_y = Math.sin(tx);
+      var cos_z = Math.cos(tz), sen_z = Math.sin(tz);
+      
 
 		//MATRIZ DE TRANSFORMACION
 		var t = new THREE.Matrix4();		//Crear la matriz de transformación
@@ -213,13 +221,27 @@
 					0, 0, tz, 0,
 					0, 0, 0, 1);
 
-		if (transf == 'R')
-			t.set( 	1, 0, 0, 0,
-					    0, 1, 0, 0,
-					    0, 0, 1, 0,
-					    0, 0, 0, 1	);
+		if (transf == 'R' ){
+      if(upArrow == true || downArrow ==true)
+			t.set( 	1,     0,      0, 0,
+					    0, cos_x, -sen_x, 0,
+					    0, sen_x,  cos_x,  0,
+					    0,     0,     0,  1	);
+     else if(leftArrow == true || rightArrow == true)
+      	t.set( 	cos_y,     0, sen_y, 0,
+					          0,     1,     0, 0,
+					     -sen_y,     0, cos_y, 0,
+					          0,     0,     0, 1);  
+    else if(homeKey == true || endKey == true)
+      	t.set( 	cos_z,-sen_z, 0, 0,
+					      sen_z, cos_z, 0, 0,
+					          0,     0, 1, 0,
+					          0,     0, 0, 1); 
+    }
+    
 
-		object.applyMatrix(t);				//Aplicar la matriz de transformación al objeto				
+		object.applyMatrix4(t);				//Aplicar la matriz de transformación al objeto				
+    r_key = false;  
 		object.elementsNeedUpdate = true;	//Avisar que la matriz del objeto ha cambiado
         camera.lookAt( 0, 0, 0 );
         renderer.render( scene, camera );
